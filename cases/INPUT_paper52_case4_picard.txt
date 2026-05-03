@@ -1,0 +1,38 @@
+# Paper Section 5.2 hydrodynamic-slug CASE 4 (LASSI) — Picard variant
+# Same as INPUT_paper52_case4.txt but with the A.1 Picard outer
+# iteration enabled (picard_max_iter = 4).  Use this case to compare
+# the staggered (sequential) solve vs. the fully-implicit (Picard)
+# coupling.
+
+tag             = paper52_case4_picard
+D               = 0.078
+Lpipe           = 36.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.5
+usl             = 1.00
+usg             = 2.11
+p_out           = 100000.0
+
+N_init          = 200
+TargetLength    = 0.18
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 20.0
+CFL             = 0.22
+dt_out          = 0.5
+x_monitor       = 34.5
+
+# Enable A.1 Picard outer iteration (4 iters max, ~3-4 typical)
+picard_max_iter = 4
+
+perturb_mode    = sine
+perturb_beta    = 0.005
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345

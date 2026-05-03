@@ -1,0 +1,33 @@
+# Build artifacts
+build/
+*.o
+*.mod
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+
+# Simulation outputs
+outputs/
+outputs_*/
+figs/
+figs_*/
+
+# Logs and temporary diagnostics
+*.log
+lstrict.log
+build_err.log
+progress.txt
+_chk_diag.py
+*.bak
+__pycache__/
+*.pyc
+
+# Editor/system files
+.vscode/
+.idea/
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,33 @@
+# Paper Section 5.1 interfacial-wave benchmark
+# Krasnopolsky-Lukyanov: D=0.051 m, L=30 m, phi=-5 deg
+# alpha_l0=0.5311, USL=USG=1.0 m/s, sinusoidal inlet alpha perturbation
+
+tag             = paper51_KH_wave
+D               = 0.051
+Lpipe           = 30.0
+phi_deg         = -5.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.5311
+usl             = 1.0
+usg             = 1.0
+p_out           = 100000.0
+
+N_init          = 300
+TargetLength    = 0.10
+beta_init       = 0.995
+W_eff           = 1.0
+
+t_end           = 6.0
+CFL             = 0.22
+dt_out          = 0.5
+x_monitor       = 24.0
+
+perturb_mode    = sine
+perturb_beta    = 0.005
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345

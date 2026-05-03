@@ -1,0 +1,45 @@
+# LASSI reproduction attempt of PhD thesis Appendix C, Figure C.2 / C.3
+# Well-posed case 1: horizontal 1 inch pipe, air-water, close to IKH limit.
+# Thesis text (page 125/127):
+#   D = 0.0254 m, L = 2.5 m, phi = 0
+#   USg = 0.75 m/s, USl = 0.5 m/s
+#   cell length = 1 mm -> N = 2500
+#   dt ~ 0.1 ms
+#   A punctual perturbation at x=0.5 m, t=0.5 s was needed to seed slug.
+#   Figure C.2 holdup profiles at t = 0.65, 0.7, 0.75, 0.8, 1.0 s.
+
+tag             = appendixC_case1
+D               = 0.0254
+Lpipe           = 2.5
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.5
+usl             = 0.5
+usg             = 0.75
+p_out           = 100000.0
+
+N_init          = 2500
+TargetLength    = 0.001
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 1.0
+CFL             = 0.22
+dt_out          = 0.05
+x_monitor       = 2.2
+x_monitors      = 0.5,1.0,1.5,2.0
+
+enable_slug_track = T
+
+# LASSI has no "single-cell single-step friction kick"; use small seed
+# at t=0 so that any linear instability has something to amplify.
+perturb_mode    = noise
+perturb_beta    = 0.01
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345
+init_beta_noise = 0.005

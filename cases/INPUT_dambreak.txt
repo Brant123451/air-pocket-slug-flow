@@ -1,0 +1,32 @@
+# LASSI dam-break verification (modified shallow water)
+# Pure void-wave test:  closed pipe, dam at x=18 m, β_L=0.8, β_R=0.2.
+tag             = dambreak
+D               = 0.078
+Lpipe           = 36.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.14e-3
+mu_g            = 1.79e-5
+T_gas           = 293.15
+
+# uniform-state base (overwritten by dam-break IC below)
+beta0           = 0.5
+usl             = 0.0
+usg             = 0.0
+p_out           = 100000.0
+
+# dam-break initial condition
+ic_mode         = dambreak
+x_dam           = 18.0
+beta_left       = 0.8
+beta_right      = 0.2
+
+N_init          = 200
+TargetLength    = 0.18
+beta_init       = 0.999
+W_eff           = 1.0
+
+t_end           = 5.0
+CFL             = 0.4
+dt_out          = 0.5
+x_monitor       = 18.0

@@ -1,0 +1,41 @@
+# Zoom run: same physics as uniform no-perturb Fig.18 debug case, denser output near first NaN.
+
+tag             = paper1_fig18_uniform_no_perturb_dbg_zoom
+D               = 0.0254
+Lpipe           = 20.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.65
+usl             = 0.35
+usg             = 2.50
+p_out           = 100000.0
+
+ic_mode         = uniform
+
+N_init          = 1000
+TargetLength    = 0.02
+beta_init       = 0.98
+beta_ikh        = 0.98
+kappa_crit      = 0.0
+W_eff           = 1.0
+
+t_end           = 1.955
+CFL             = 0.22
+dt_out          = 0.002
+x_monitor       = 10.0
+x_monitors      = 5.0,10.0,15.0,18.0
+enable_slug_track = T
+
+pm_diag_t_lo    = 1.90
+pm_diag_t_hi    = 1.955
+
+perturb_mode    = noise
+perturb_beta    = 0.0
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345
+init_beta_noise = 0.0

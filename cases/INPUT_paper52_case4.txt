@@ -1,0 +1,37 @@
+# Paper Section 5.2 hydrodynamic-slug CASE 4 (LASSI)
+# K-L 2018 Table: USL=1.00 m/s, USG=2.11 m/s, exp f_s = 0.46 Hz
+
+tag             = paper52_case4
+D               = 0.078
+Lpipe           = 36.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.5
+usl             = 1.00
+usg             = 2.11
+p_out           = 100000.0
+
+N_init          = 200
+TargetLength    = 0.18
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 20.0
+CFL             = 0.4
+dt_out          = 0.5
+x_monitor       = 30.0
+
+# Multi-station monitor + per-slug tracking for offline frequency PDF
+x_monitors      = 9.0,18.0,27.0,30.0,34.0
+enable_slug_track = T
+
+perturb_mode    = noise
+perturb_beta    = 0.0
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345
+init_beta_noise = 0.0
