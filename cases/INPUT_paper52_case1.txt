@@ -1,0 +1,32 @@
+# Paper Section 5.2 hydrodynamic-slug CASE 1 (LASSI)
+# K-L 2018 Table: USL=0.41 m/s, USG=2.36 m/s, exp f_s = 0.18 Hz
+
+tag             = paper52_case1
+D               = 0.078
+Lpipe           = 36.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+beta0           = 0.5
+usl             = 0.41
+usg             = 2.36
+p_out           = 100000.0
+
+N_init          = 200
+TargetLength    = 0.18
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 20.0
+CFL             = 0.22
+dt_out          = 0.5
+x_monitor       = 34.5
+
+perturb_mode    = sine
+perturb_beta    = 0.005
+perturb_Ul      = 0.0
+perturb_period  = 2.0
+perturb_seed    = 12345

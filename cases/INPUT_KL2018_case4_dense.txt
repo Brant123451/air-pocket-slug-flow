@@ -1,0 +1,30 @@
+# Krasnopolsky-Lukyanov 2018 hydrodynamic slug benchmark - Case 4
+# (USL=1.0 m/s, USG=2.0 m/s; D=0.078 m, L=36 m, horizontal)
+tag             = KL2018_case4
+D               = 0.078
+Lpipe           = 36.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.14e-3
+mu_g            = 1.79e-5
+T_gas           = 293.15
+
+beta0           = 0.5
+usl             = 1.0
+usg             = 2.0
+p_out           = 100000.0
+
+N_init          = 200
+TargetLength    = 0.18
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 20.0
+CFL             = 0.4
+dt_out = 0.1
+x_monitor       = 30.0
+
+# inlet perturbation amplitudes (white noise) ??required to seed slugs
+perturb_beta    = 0.02
+perturb_Ul      = 0.10
+perturb_seed    = 12345

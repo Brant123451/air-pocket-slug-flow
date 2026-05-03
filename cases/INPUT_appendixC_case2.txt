@@ -1,0 +1,49 @@
+# LASSI reproduction attempt of PhD thesis Appendix C, Figure C.5 / C.6
+# Ill-posed case 2: horizontal 1 inch pipe, air-water, well over the IKH limit.
+# Thesis text (page 126/128):
+#   D = 0.0254 m, L = 20 m, phi = 0
+#   USg = 2.0 m/s, USl = 0.5 m/s   (over the IKH ill-posedness line)
+#   cell length = 1 cm -> N = 2000
+#   dt ~ 1 ms
+#   "slugging appeared naturally and it was not necessary to introduce any
+#    artificial perturbation"
+#   Figure C.5 holdup profiles at t = 2.3, 2.4, 2.5, 2.6, 4.0 s.
+
+tag             = appendixC_case2
+D               = 0.0254
+Lpipe           = 20.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+# β0 is set just inside the IKH ill-posed region (κ<0 for β>0.72 at
+# these velocities; see compute-kappa sanity check) so the initial
+# state is "established stratified flow" near IKH onset, matching the
+# thesis case-2 IC described on page 126.
+beta0           = 0.75
+usl             = 0.5
+usg             = 2.0
+p_out           = 100000.0
+
+N_init          = 2000
+TargetLength    = 0.01
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 4.5
+CFL             = 0.22
+dt_out          = 0.05
+x_monitor       = 18.0
+x_monitors      = 5.0,10.0,15.0,18.0
+
+enable_slug_track = T
+
+# Paper says no perturbation needed in ill-posed regime; keep a tiny seed
+# to mimic TRIOMPH's implicit numerical noise that served as the perturbation.
+perturb_mode    = noise
+perturb_beta    = 0.001
+perturb_Ul      = 0.0
+init_beta_noise = 0.005
+perturb_seed    = 12345

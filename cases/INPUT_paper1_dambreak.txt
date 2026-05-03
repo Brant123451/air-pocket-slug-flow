@@ -1,0 +1,49 @@
+# LASSI reproduction of thesis Paper 1 §4.2 (Fig 11-12) Moving Dam Break.
+# In Paper 1 the test is run in a frame moving at 10 m/s; in LASSI's
+# Lagrangian frame this is equivalent to U_L = U_R = 0 and the grid
+# stays put.  We run a wider pipe (D = 1.5 m) so that h_L = 1.0 m and
+# h_R = 0.5 m fit comfortably; the corresponding holdups in the LASSI
+# flat-top D-shape geometry are β_L ≈ 0.722 and β_R ≈ 0.297.
+
+tag             = paper1_dambreak
+D               = 1.5
+Lpipe           = 5.0
+phi_deg         = 0.0
+rho_l           = 1000.0
+mu_l            = 1.0e-3
+mu_g            = 1.7e-5
+T_gas           = 293.15
+
+# beta0 / usl / usg are placeholders; ic_mode='dambreak' overrides them.
+beta0           = 0.5
+usl             = 0.0
+usg             = 0.0
+p_out           = 100000.0
+
+N_init          = 500
+TargetLength    = 0.01
+beta_init       = 0.98
+W_eff           = 1.0
+
+t_end           = 0.5
+CFL             = 0.22
+dt_out          = 0.01
+x_monitor       = 4.0
+x_monitors      = 1.0,2.0,3.0,4.0
+
+ic_mode         = dambreak
+x_dam           = 2.5
+beta_left       = 0.7217
+beta_right      = 0.2973
+
+# Disable inlet perturbation; pure Riemann test
+perturb_beta    = 0.0
+perturb_Ul      = 0.0
+init_beta_noise = 0.0
+
+# Disable IKH-based slug onset for this Riemann verification — we only
+# want to see the shallow-water shock + rarefaction structure, no slug
+# initiation.  beta_init = 0.98 already prevents slug onset since the
+# largest β in the test (0.722) is well below threshold.
+beta_ikh        = 1.5
+kappa_crit      = 0.0
