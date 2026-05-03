@@ -616,7 +616,30 @@ contains
             ! consume it in a single δt here — attempting to do so
             ! inflates Um to tens of m/s and spawns the "mega-slug"
             ! artefact observed in case 4.
-            if (sec_ahead%beta > g%beta_init - EPS_SMALL) then
+            do while (associated(sec_ahead))
+               if (sec_ahead%kind /= KIND_SECTION) exit
+               if (sec_ahead%beta <= g%beta_init - EPS_SMALL) exit
+               call absorb_flooded_front_section(g, p, bub_R, sec_ahead)
+               bub_R => p%next
+               if (.not. associated(bub_R)) exit
+               if (bub_R%kind /= KIND_BUBBLE .or. bub_R%is_nose) exit
+               sec_ahead => bub_R%next
+               if (.not. associated(sec_ahead)) exit
+            end do
+            if (.not. associated(bub_R)) then
+               p => p_next
+               cycle
+            end if
+            if (bub_R%kind /= KIND_BUBBLE .or. bub_R%is_nose) then
+               p => p_next
+               cycle
+            end if
+            sec_ahead => bub_R%next
+            if (.not. associated(sec_ahead)) then
+               p => p_next
+               cycle
+            end if
+            if (sec_ahead%kind /= KIND_SECTION) then
                p => p_next
                cycle
             end if
@@ -637,7 +660,12 @@ contains
                if (.not. associated(sec_ahead)) exit
                if (sec_ahead%kind /= KIND_SECTION) exit
                ! Same guard inside the iterative absorption loop.
-               if (sec_ahead%beta > g%beta_init - EPS_SMALL) exit
+               if (sec_ahead%beta > g%beta_init - EPS_SMALL) then
+                  call absorb_flooded_front_section(g, p, bub_R, sec_ahead)
+                  bub_R => p%next
+                  if (associated(bub_R)) z_front = bub_R%zR
+                  cycle
+               end if
                z_cross = sec_ahead%zR
                d_need = max(z_cross - z_front, 0.0_rk)
                if (d_need <= remaining + EPS_OVERSHOOT) then
@@ -677,6 +705,39 @@ contains
       end do
    end subroutine slug_front_eat
 
+   subroutine absorb_flooded_front_section(g, slug, bub_front, sec_front)
+      type(grid_t), intent(inout) :: g
+      type(object_t), pointer, intent(inout) :: slug, bub_front, sec_front
+      real(rk) :: A, L_slug_old, L_sec, L_total, surplus
+
+      if (.not. associated(slug)) return
+      if (.not. associated(bub_front)) return
+      if (.not. associated(sec_front)) return
+      if (slug%kind /= KIND_SLUG) return
+      if (bub_front%kind /= KIND_BUBBLE) return
+      if (sec_front%kind /= KIND_SECTION) return
+
+      A = 0.25_rk*PI*g%D*g%D
+      L_slug_old = object_length(slug)
+      L_sec = object_length(sec_front)
+      L_total = L_slug_old + L_sec
+      surplus = (1.0_rk - sec_front%beta)*L_sec*A
+      if (L_total > EPS_SMALL) then
+         slug%Um = (L_slug_old*slug%Um + L_sec*sec_front%Ul)/L_total
+      end if
+      slug%zR = sec_front%zR
+      call remove_object(g, sec_front)
+      call remove_object(g, bub_front)
+      g%gas_track_initialized = .false.
+      if (associated(slug%next)) then
+         if (slug%next%kind == KIND_BUBBLE) then
+            slug%next%zR = slug%zR
+            slug%next%is_nose = .false.
+         end if
+      end if
+      call distribute_to_neighbors(slug, -surplus, A)
+   end subroutine absorb_flooded_front_section
+
    pure function front_speed(Um, beta_film, Ul_film) result(UF)
       real(rk), intent(in) :: Um, beta_film, Ul_film
       real(rk) :: UF, b
@@ -701,13 +762,14 @@ contains
 !   shed  = (U_b,nose − U_m)            (liquid shed into the tail bubble)
 !   dL/dt = eaten − shed               (slug body length rate of change)
 !======================================================================
-   subroutine slug_shed(g, dt)
+   subroutine slug_shed(g, dt, border_ids, border_Ub)
       type(grid_t), intent(inout) :: g
       real(rk),     intent(in)    :: dt
+      integer(ik),  intent(in)    :: border_ids(:)
+      real(rk),     intent(in)    :: border_Ub(:)
       type(object_t), pointer :: p, p_next, bub_L, bub_R, sec_L, sec_R
       real(rk) :: L, Ls, Ll, beta_new, mom
-      real(rk) :: Um, beta_R, Ul_R, U_F, U_nose, W_loc
-      real(rk) :: eaten_rate, shed_rate, dLdt
+      real(rk) :: beta_R, Ul_R, U_front, U_tail, dLdt
       logical  :: paper_dies
       p => g%head
       do while (associated(p))
@@ -726,20 +788,15 @@ contains
                   end if
                end if
             end if
-            if (associated(sec_R)) then
-               Um     = p%Um
-               beta_R = max(min(sec_R%beta, 1.0_rk - EPS_SMALL), EPS_SMALL)
-               Ul_R   = sec_R%Ul
-               ! Hydraulic-shock front speed (paper §4.5, Eq. 2.12).
-               U_F    = safe_div_uf(Um - beta_R*Ul_R, 1.0_rk - beta_R, Um)
-               ! Bendiksen-nose speed of the tail bubble (paper §2.2.3).
-               W_loc  = wake_effect(L, g%D, 1.0_rk)
-               U_nose = W_loc*bendiksen_nose(Um, g%D, g%phi)
-               ! Per-unit-length rates (A factors cancel).
-               eaten_rate = beta_R*(U_F - Ul_R)
-               shed_rate  = U_nose - Um
-               dLdt       = eaten_rate - shed_rate
-               if (dLdt < 0.0_rk) paper_dies = .true.
+            if (associated(sec_R) .and. associated(bub_R) .and. associated(bub_L)) then
+               if (.not. bub_R%is_nose .and. bub_L%is_nose) then
+                  U_front = lookup_border_velocity(border_ids, border_Ub, bub_R%id, p%Um)
+                  U_tail  = lookup_border_velocity(border_ids, border_Ub, bub_L%id, p%Um)
+                  beta_R  = max(min(sec_R%beta, 1.0_rk - EPS_SMALL), EPS_SMALL)
+                  Ul_R    = sec_R%Ul
+                  dLdt    = beta_R*(U_front - Ul_R) - (U_tail - p%Um)
+                  if (dLdt < 0.0_rk) paper_dies = .true.
+               end if
             end if
             if (L < 0.05_rk*g%TargetLength .or. paper_dies) then
                bub_L => p%prev
@@ -774,6 +831,22 @@ contains
          p => p_next
       end do
    end subroutine slug_shed
+
+   pure function lookup_border_velocity(border_ids, border_Ub, bid, fallback) result(Ub)
+      integer(ik), intent(in) :: border_ids(:)
+      real(rk),    intent(in) :: border_Ub(:)
+      integer(ik), intent(in) :: bid
+      real(rk),    intent(in) :: fallback
+      real(rk) :: Ub
+      integer :: i
+      Ub = fallback
+      do i = 1, min(size(border_ids), size(border_Ub))
+         if (border_ids(i) == bid) then
+            Ub = border_Ub(i)
+            return
+         end if
+      end do
+   end function lookup_border_velocity
 
 !======================================================================
 ! Merge two adjacent slugs separated by a vanishing bubble into a

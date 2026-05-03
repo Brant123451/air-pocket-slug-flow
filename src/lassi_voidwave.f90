@@ -69,7 +69,7 @@ contains
 
       call collect_borders(g, bi, nb, W_eff)
       if (nb == 0) return
-      call slug_shed(g, dt)
+      call slug_shed(g, dt, bi%bid, bi%U_b)
       deallocate(bi)
       call collect_borders(g, bi, nb, W_eff)
       if (nb == 0) return
